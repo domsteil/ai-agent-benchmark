@@ -10,6 +10,7 @@
 // ranked by strength.
 
 export const PROVIDER_SIGNATURES = {
+  "StateSet":      { scripts: [/stateset|response\.stateset|response-chat-widget/i], ids: [/stateset|response|chat-widget/i], hosts: [/stateset|response/i], globals: ["StateSet", "StateSetChat"] },
   "Gorgias":       { scripts: [/gorgias\.chat|config\.gorgias|gorgias\.io/i], ids: [/^gorgias-chat/i], hosts: [/gorgias/i], globals: ["GorgiasChat"] },
   "Envive":        { scripts: [/cdn\.spiffy\.ai|envive-injection|envive\.ai/i], ids: [/^(envive|spiffy)-ai|spiffy-modal-container/i], hosts: [/^(envive|spiffy)-ai-floating/i], globals: ["Envive", "spiffy"] },
   "Siena":         { scripts: [/siena\.cx|siena\.chat|assets\.siena/i], ids: [/siena/i], hosts: [/siena/i], globals: ["Siena", "SienaChat"] },
