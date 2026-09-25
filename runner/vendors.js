@@ -194,6 +194,26 @@ async function fillEmailGate(page, frame) {
   } catch { return false; }
 }
 
+// Email gate INSIDE the StateSet panel. The widget mounts inline (no iframe), so
+// fillAnyChatEmailGate's frame scan never sees it. Scoped strictly to the widget
+// subtree — page-level newsletter forms are never touched.
+async function fillStatesetEmailGate(root) {
+  try {
+    const email = root.locator('input[type="email"]').first();
+    if (!(await email.count().catch(() => 0))) return false;
+    if (!(await email.isVisible().catch(() => false))) return false;
+    const identity = makeDummyIdentity();
+    const nameI = root.locator('input[placeholder*="name" i], input[name*="name" i], input[aria-label*="name" i]').first();
+    if (await nameI.count().catch(() => 0)) await nameI.fill(identity.name).catch(() => {});
+    await email.fill(identity.email).catch(() => {});
+    const btn = root.locator('button[type="submit"], button:has-text("Start"), button:has-text("Continue"), button:has-text("Submit"), button:has-text("Send"), button:has-text("Chat")').first();
+    if (await btn.count().catch(() => 0)) await btn.click({ timeout: 3000 }).catch(() => {});
+    else await email.press("Enter").catch(() => {});
+    await root.page().waitForTimeout(2500);
+    return true;
+  } catch { return false; }
+}
+
 async function fillAnyChatEmailGate(page) {
   let filled = false;
   for (const frame of page.frames()) {
@@ -652,6 +672,68 @@ export const WIDGETS = {
       await genericSendChat(page, text);
     },
   },
+  // StateSet Response widget (chat.*.stateset.com / chat.*.stateset.app embed.js).
+  // Mounts INLINE in the page DOM under #rw-chat-widget — no iframe, no shadow DOM
+  // (confirmed in served HTML on both StateSet storefronts, 2026-09-25). Two load
+  // patterns: eager <script src=.../embed.js> (nomakeupmakeup) vs lazy injection on
+  // the first TRUSTED user gesture (yisebeauty: pointerdown/keydown/touchstart/wheel/
+  // click with `event.isTrusted === false` explicitly rejected). Consequences:
+  //   - open() must produce a REAL gesture first (page.mouse.wheel = trusted);
+  //     synthetic el.click() via evaluate never loads the embed.
+  //   - scope is kind:"dom" on #rw-chat-widget. The old frame scope
+  //     (/stateset|response|chat|assistant/i) matched unrelated ad/pixel frames and
+  //     measured nothing (3/3 captures 0 timed turns, 2026-09-25).
+  //   - open()/send() scope strictly to #rw-chat-widget: both stores co-host a
+  //     Gorgias widget (+ Klaviyo) on the same page that must never be driven.
+  // Never click the greeting quick-reply chips — type real messages (rule 4).
+  stateset: {
+    scope: { kind: "dom", sel: "#rw-chat-widget" },
+    async open(page) {
+      await dismiss(page);
+      const root = page.locator("#rw-chat-widget").first();
+      // Let the heavy storefront finish loading BEFORE the first gesture: the
+      // lazy embed avalanche (chat bundle + accessibility + tracking) fired
+      // mid-load crashes the tab on weighed-down pages (verified 2026-09-25 —
+      // blank page ~1s after an early wheel). No-op for eager embeds.
+      try { await page.waitForLoadState("load", { timeout: 30000 }); } catch {}
+      await page.waitForTimeout(3000);
+      // Trusted gesture to trigger the lazy embed injection (no-op when eager).
+      await page.mouse.wheel(0, 500).catch(() => {});
+      await page.waitForTimeout(2500);
+      const launcher = root.locator("button, [role='button']").first();
+      await launcher.waitFor({ state: "visible", timeout: 30000 }).catch(() => {});
+      // Keyboard activation, NOT a mouse click: a third-party overlay div sits on
+      // top of the launcher (elementFromPoint at its center hits the overlay, so
+      // every mouse click lands there and the panel never opens — verified
+      // 2026-09-25). focus() + Enter toggles the panel reliably.
+      await launcher.focus({ timeout: 5000 }).catch(() => {});
+      await page.keyboard.press("Enter").catch(() => {});
+      await root.locator("textarea, [contenteditable='true']").first().waitFor({ state: "visible", timeout: 15000 }).catch(() => {});
+      await fillStatesetEmailGate(root).catch(() => {});
+    },
+    async send(page, text) {
+      const root = page.locator("#rw-chat-widget").first();
+      await fillStatesetEmailGate(root).catch(() => {});
+      let inp = root.locator("textarea").first();
+      if (!(await inp.count().catch(() => 0))) inp = root.locator("[contenteditable='true'], input[type='text']").first();
+      // The composer may sit under the same overlay that covers the launcher, so a
+      // mouse click can miss — focus explicitly, then fill, then Enter.
+      await inp.click({ timeout: 5000 }).catch(() => {});
+      await inp.evaluate((el) => el.focus()).catch(() => {});
+      await inp.fill(text).catch(async () => { await inp.type(text, { delay: 8 }).catch(() => {}); });
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(400);
+      // If Enter didn't submit (input not cleared), fall back to the widget's own
+      // send button — scoped to #rw-chat-widget, never a page-level button.
+      try {
+        const still = await inp.inputValue().catch(() => "");
+        if (still && still.trim()) {
+          const sendBtn = root.locator('button[aria-label*="send" i], button[type="submit"]').first();
+          if (await sendBtn.count()) await sendBtn.click({ timeout: 3000 }).catch(() => {});
+        }
+      } catch {}
+    },
+  },
   decagon: {
     // Decagon — enterprise AI support agent. Loader https://decagon.ai/loaders/<client>.js
     // injects #decagon-embed-container + a #decagon-iframe; opening toggles
@@ -1065,6 +1147,10 @@ export const STORES = [
   { key: "gorgias-baiafood",  vendor: "Gorgias", store: "Baia Food",        url: "https://baiafood.com/",            widget: "gorgias", locale: "es-ES" },
   { key: "gorgias-blueroot",  vendor: "Gorgias", store: "Blueroot Health",  url: "https://blueroothealth.co/",       widget: "gorgias", locale: "en-GB" }, // widget not in static HTML — capture validates
   { key: "gorgias-masderm",   vendor: "Gorgias", store: "Masderm",          url: "https://masderm.com/",             widget: "gorgias", locale: "fr-FR" },
+  // StateSet brand deployments. The storefront shell is Gorgias-compatible, but the
+  // assistant under test is StateSet and must be attributed to StateSet in results.
+  { key: "stateset-yisebeauty", candidate: true, vendor: "StateSet", store: "Y/SE Beauty", url: "https://yisebeauty.com/", widget: "stateset", us: true, personas: ["Dottie"] }, // StateSet Response agent "Dottie" (chat.yse.stateset.com, lazy-load on gesture)
+  { key: "stateset-nomakeupmakeup", candidate: true, vendor: "StateSet", store: "No Makeup Makeup", url: "https://nomakeupmakeup.com/pages/contact", widget: "stateset", us: true, personas: ["Noelle"] }, // StateSet Response agent "Noelle" (chat.nmn.stateset.app, eager embed; Gorgias co-hosted — drive #rw-chat-widget only)
   // NWA Hype (nwahype.com) dropped: captured 9 conversations, 0 measurable (all —ms — widget never
   // produced a timed answer; unmeasurable like Klaviyo/Decagon), so no honest data to add.
 
