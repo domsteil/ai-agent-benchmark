@@ -1,7 +1,7 @@
 {
- "audited_at": "2026-09-25T23:52:22.165Z",
- "verdicts": 352,
- "agreement_pct": 89.2,
+ "audited_at": "2026-09-26T00:07:21.315Z",
+ "verdicts": 362,
+ "agreement_pct": 89.5,
  "trusted": false,
  "false_positives": 4,
  "false_negatives": 34,
@@ -88,52 +88,52 @@
    "fn": 0
   },
   "g_consistent": {
-   "agree": 7,
+   "agree": 8,
    "fp": 1,
    "fn": 0
   },
   "g_grounded": {
-   "agree": 8,
+   "agree": 9,
    "fp": 0,
    "fn": 0
   },
   "g_specific": {
-   "agree": 8,
+   "agree": 9,
    "fp": 0,
    "fn": 0
   },
   "k_clean": {
-   "agree": 8,
+   "agree": 9,
    "fp": 0,
    "fn": 0
   },
   "k_expectations": {
-   "agree": 8,
+   "agree": 9,
    "fp": 0,
    "fn": 0
   },
   "s_answered": {
-   "agree": 6,
+   "agree": 7,
    "fp": 0,
    "fn": 2
   },
   "s_no_deflect": {
-   "agree": 7,
+   "agree": 8,
    "fp": 0,
    "fn": 1
   },
   "s_outcome": {
-   "agree": 7,
+   "agree": 8,
    "fp": 0,
    "fn": 1
   },
   "t_complete": {
-   "agree": 8,
+   "agree": 9,
    "fp": 0,
    "fn": 0
   },
   "t_steps": {
-   "agree": 8,
+   "agree": 9,
    "fp": 0,
    "fn": 0
   }
