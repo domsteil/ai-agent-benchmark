@@ -1,92 +1,148 @@
 {
- "audited_at": "2026-07-06T09:10:10.020Z",
- "verdicts": 240,
- "agreement_pct": 100,
- "trusted": true,
- "false_positives": 0,
- "false_negatives": 0,
- "rescored": 0,
+ "audited_at": "2026-09-25T23:52:22.165Z",
+ "verdicts": 352,
+ "agreement_pct": 89.2,
+ "trusted": false,
+ "false_positives": 4,
+ "false_negatives": 34,
+ "rescored": 16,
  "perCheck": {
-  "a_direct": {
-   "agree": 15,
+  "a_consistent": {
+   "agree": 17,
    "fp": 0,
    "fn": 0
   },
-  "a_consistent": {
-   "agree": 15,
+  "a_direct": {
+   "agree": 14,
    "fp": 0,
-   "fn": 0
+   "fn": 3
   },
   "a_no_ignored": {
    "agree": 15,
    "fp": 0,
-   "fn": 0
+   "fn": 2
+  },
+  "c_cart": {
+   "agree": 13,
+   "fp": 0,
+   "fn": 4
+  },
+  "c_clean": {
+   "agree": 14,
+   "fp": 0,
+   "fn": 3
+  },
+  "c_cta": {
+   "agree": 14,
+   "fp": 0,
+   "fn": 3
   },
   "d_clarify": {
-   "agree": 15,
+   "agree": 12,
    "fp": 0,
-   "fn": 0
-  },
-  "d_progressive": {
-   "agree": 15,
-   "fp": 0,
-   "fn": 0
+   "fn": 5
   },
   "d_not_dump": {
-   "agree": 15,
+   "agree": 16,
    "fp": 0,
-   "fn": 0
+   "fn": 1
   },
-  "r_named": {
-   "agree": 15,
+  "d_progressive": {
+   "agree": 16,
+   "fp": 0,
+   "fn": 1
+  },
+  "e_link": {
+   "agree": 14,
+   "fp": 2,
+   "fn": 1
+  },
+  "e_options": {
+   "agree": 13,
+   "fp": 0,
+   "fn": 4
+  },
+  "e_price": {
+   "agree": 14,
+   "fp": 0,
+   "fn": 3
+  },
+  "e_reviews": {
+   "agree": 17,
    "fp": 0,
    "fn": 0
   },
   "r_fit": {
-   "agree": 15,
+   "agree": 16,
+   "fp": 1,
+   "fn": 0
+  },
+  "r_named": {
+   "agree": 17,
    "fp": 0,
    "fn": 0
   },
   "r_plausible": {
-   "agree": 15,
+   "agree": 17,
    "fp": 0,
    "fn": 0
   },
-  "e_price": {
-   "agree": 15,
+  "g_consistent": {
+   "agree": 7,
+   "fp": 1,
+   "fn": 0
+  },
+  "g_grounded": {
+   "agree": 8,
    "fp": 0,
    "fn": 0
   },
-  "e_link": {
-   "agree": 15,
+  "g_specific": {
+   "agree": 8,
    "fp": 0,
    "fn": 0
   },
-  "e_reviews": {
-   "agree": 15,
+  "k_clean": {
+   "agree": 8,
    "fp": 0,
    "fn": 0
   },
-  "e_options": {
-   "agree": 15,
+  "k_expectations": {
+   "agree": 8,
    "fp": 0,
    "fn": 0
   },
-  "c_cta": {
-   "agree": 15,
+  "s_answered": {
+   "agree": 6,
+   "fp": 0,
+   "fn": 2
+  },
+  "s_no_deflect": {
+   "agree": 7,
+   "fp": 0,
+   "fn": 1
+  },
+  "s_outcome": {
+   "agree": 7,
+   "fp": 0,
+   "fn": 1
+  },
+  "t_complete": {
+   "agree": 8,
    "fp": 0,
    "fn": 0
   },
-  "c_cart": {
-   "agree": 15,
-   "fp": 0,
-   "fn": 0
-  },
-  "c_clean": {
-   "agree": 15,
+  "t_steps": {
+   "agree": 8,
    "fp": 0,
    "fn": 0
   }
  },
- "trapHits": {}
+ "trapHits": {
+  "T2": 3,
+  "T9": 1,
+  "T5": 2,
+  "T1": 7,
+  "T7": 1
+ }
 }
